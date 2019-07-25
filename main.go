@@ -15,7 +15,8 @@ import (
 )
 
 const (
-	DefaultMaxCommands     = 10
+	// DefaultCommandFileName is the file that lamex will read for the commands that
+	// you want to run. TODO: Maybe make configurable ?
 	DefaultCommandFileName = "commands.txt"
 )
 
@@ -28,12 +29,9 @@ func parseCommandFile(file string) ([]string, error) {
 	}
 	defer f.Close()
 
-	lines := make([]string, 0, DefaultMaxCommands)
+	lines := make([]string, 0, 10)
 	s := bufio.NewScanner(f)
 	for s.Scan() {
-		if len(lines) >= DefaultMaxCommands {
-			break
-		}
 		lines = append(lines, s.Text())
 	}
 
@@ -54,6 +52,8 @@ func main() {
 	lambda.Start(Handler)
 }
 
+// Handler runs the commands sequentially and will return an error
+// if any of the commands error
 func Handler(ctx context.Context) error {
 
 	for _, cmd := range commands {
